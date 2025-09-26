@@ -1,29 +1,22 @@
-services:
-  app-web:
-    build: .
-    container_name: app-web
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/code
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres_db
-    environment:
-      - DJANGO_SETTINGS_MODULE=novo_projeto_django.settings
-      - DATABASE_URL=postgres://postgres:postgres@postgres_db:5432/postgres
-
-  postgres_db:
-    image: postgres:15-alpine
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-
-volumes:
-  pg_data:
+    services:
+      db:
+        image: postgres:15
+        environment:
+          POSTGRES_DB: mydb
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+        ports:
+          - "5432:5432"
+      web:
+        build: .
+        environment:
+          # Esta variável ajuda o Python a encontrar o projeto
+          - PYTHONPATH=/app
+        command: gunicorn novo_projeto_django.wsgi:application --bind 0.0.0.0:8000
+        volumes:
+          - .:/app
+        ports:
+          - "8000:8000"
+        depends_on:
+          - db
+    
