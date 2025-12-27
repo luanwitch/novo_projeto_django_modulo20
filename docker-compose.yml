@@ -1,22 +1,37 @@
-    services:
-      db:
-        image: postgres:15
-        environment:
-          POSTGRES_DB: mydb
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-        ports:
-          - "5432:5432"
-      web:
-        build: .
-        environment:
-          # Esta variável ajuda o Python a encontrar o projeto
-          - PYTHONPATH=/app
-        command: gunicorn novo_projeto_django.wsgi:application --bind 0.0.0.0:8000
-        volumes:
-          - .:/app
-        ports:
-          - "8000:8000"
-        depends_on:
-          - db
-    
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+    - POSTGRES_DB=django_db
+    - POSTGRES_USER=django_user
+    - POSTGRES_PASSWORD=django_password
+    - POSTGRES_HOST=db
+    - POSTGRES_PORT=5432
+    - PYTHONPATH=/app
+
+    ports:
+      - "5433:5432"
+
+  web:
+    build: .
+    command: tail -f /dev/null
+    volumes:
+      - ./novo_projeto_django:/app
+    ports:
+      - "8001:8000"
+    environment:
+      - POSTGRES_NAME=django_db
+      - POSTGRES_USER=django_user
+      - POSTGRES_PASSWORD=django_password
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - PYTHONPATH=/app
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
