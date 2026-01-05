@@ -6,30 +6,27 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-    - POSTGRES_DB=django_db
-    - POSTGRES_USER=django_user
-    - POSTGRES_PASSWORD=django_password
-    - POSTGRES_HOST=db
-    - POSTGRES_PORT=5432
-    - PYTHONPATH=/app
-
+      - POSTGRES_DB=django_db
+      - POSTGRES_USER=django_user
+      - POSTGRES_PASSWORD=django_password
     ports:
       - "5433:5432"
 
   web:
     build: .
-    command: tail -f /dev/null
+    # Substituí o tail -f pelo comando que realmente inicia o Django:
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./novo_projeto_django:/app
     ports:
-      - "8001:8000"
+      - "8001:8000" # Você acessará em localhost:8001
     environment:
-      - POSTGRES_NAME=django_db
+      - POSTGRES_DB=django_db
       - POSTGRES_USER=django_user
       - POSTGRES_PASSWORD=django_password
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
     depends_on:
       - db
 
