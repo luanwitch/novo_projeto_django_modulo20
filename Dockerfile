@@ -1,10 +1,12 @@
-FROM python:3.13-slim
+FROM python:3.11-slim
 
-WORKDIR /code
+WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY novo_projeto_django/ .
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1

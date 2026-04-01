@@ -1,29 +1,35 @@
-services:
-  app-web:
-    build: .
-    container_name: app-web
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/code
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres_db
-    environment:
-      - DJANGO_SETTINGS_MODULE=novo_projeto_django.settings
-      - DATABASE_URL=postgres://postgres:postgres@postgres_db:5432/postgres
+version: '3.8'
 
-  postgres_db:
-    image: postgres:15-alpine
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    ports:
-      - "5432:5432"
+services:
+  db:
+    image: postgres:15
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=django_db
+      - POSTGRES_USER=django_user
+      - POSTGRES_PASSWORD=django_password
+    ports:
+      - "5433:5432"
+
+  web:
+    build: .
+    # O comando abaixo é o que faz o Django ligar de verdade!
+    command: python manage.py runserver 0.0.0.0:8000
+    
+    volumes:
+      - ./novo_projeto_django:/app
+    ports:
+      - "8001:8000"
+    environment:
+      - POSTGRES_DB=django_db
+      - POSTGRES_USER=django_user
+      - POSTGRES_PASSWORD=django_password
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - PYTHONPATH=/app
+    depends_on:
+      - db
 
 volumes:
-  pg_data:
+  postgres_data:
